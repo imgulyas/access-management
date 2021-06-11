@@ -1,0 +1,135 @@
+module AccessManagement where
+
+import DA.Set
+import Daml.Script
+
+subsetOf : Ord a => Set a -> Set a -> Bool
+set1 `subsetOf` set2 = set1 `union` set2 == set2
+
+template Resource
+  with
+    description      : Text
+    issuer           : Party
+    admins           : Set Party
+    withRequestRight : Set Party
+    approversNeeded  : Int
+  where
+    ensure description /= "" &&
+           approversNeeded > 0 &&
+           approversNeeded <= size admins
+    signatory issuer
+    observer admins, withRequestRight
+
+template ResourceRequest
+  with
+    applicant : Party
+    resource  : Resource
+  where
+    signatory applicant
+    observer  resource.admins
+
+template RequestGranted
+  with
+    request  : ResourceRequest
+    approval : RequestApproval
+    grantor  : Party
+  where
+    signatory grantor
+    observer request.resource.withRequestRight, request.resource.admins
+
+template RequestApproval
+  with
+    request    : ResourceRequest
+    approvedBy : Set Party
+  where
+    signatory approvedBy
+    observer  request.resource.admins
+    ensure approvedBy `subsetOf` request.resource.admins
+
+    choice Approve: ContractId RequestApproval
+      with approver: Party
+      controller approver
+      do
+        let approversPending = difference request.resource.admins approvedBy
+        assert $ member approver approversPending
+        create this with
+          approvedBy = insert approver approvedBy
+
+    nonconsuming choice GrantRequest: ContractId RequestGranted
+      with grantor : Party
+      controller grantor
+      do
+        assert $ member grantor approvedBy
+        assert $ size approvedBy >= request.resource.approversNeeded
+        create RequestGranted with
+          request = request
+          approval = this
+          grantor = grantor
+
+test = script do
+  alice <-  allocateParty "Alice"
+  admin1 <- allocateParty "Ada"
+  admin2 <- allocateParty "Adelaide"
+  admin3 <- allocateParty "Adam"
+
+  let admins = fromList [admin1, admin2, admin3]
+
+  -- Create resource
+  resourceId <- admin1 `submit` do
+    createCmd Resource with
+      description = "pool car"
+      issuer = admin1
+      admins = admins
+      withRequestRight = singleton alice
+      approversNeeded = 2
+
+  -- Request usage
+  Some car <- queryContractId alice resourceId
+  requestId <- alice `submit` do
+    createCmd ResourceRequest with
+      applicant = alice
+      resource = car
+
+  -- A non-admin can't start the approval process
+  Some request <- queryContractId alice requestId
+  alice `submitMustFail` do
+    createCmd RequestApproval with
+      request = request
+      approvedBy = fromList [alice]
+
+  -- An admin can't give an other admin's approval
+  admin1 `submitMustFail` do
+    createCmd RequestApproval with
+      request = request
+      approvedBy = fromList [admin1, admin3]
+
+  -- An admin can start approval process
+  pending <- admin1 `submit` do
+    createCmd RequestApproval with
+      request = request
+      approvedBy = fromList [admin1]
+
+  -- An admin can only approve a pending request once
+  admin1 `submitMustFail` do
+    exerciseCmd pending Approve with
+      approver = admin1
+
+  -- You can't grant a request that does not have enough approvers
+  admin1 `submitMustFail` do
+    exerciseCmd pending GrantRequest with
+      grantor = admin1
+
+  -- Another approval
+  pending' <- admin2 `submit` do
+    exerciseCmd pending Approve with
+      approver = admin2
+
+  -- You can only grant a request if you approved it
+  admin3 `submitMustFail` do
+    exerciseCmd pending' GrantRequest with
+      grantor = admin3
+
+  -- A former approver can grant a request
+  admin2 `submit` do
+    exerciseCmd pending' GrantRequest with
+      grantor = admin2

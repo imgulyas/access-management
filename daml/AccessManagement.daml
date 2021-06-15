@@ -66,6 +66,7 @@ template RequestApproval
           approval = this
           grantor = grantor
 
+test : Script (ContractId RequestGranted)
 test = script do
   alice <-  allocateParty "Alice"
   admin1 <- allocateParty "Ada"

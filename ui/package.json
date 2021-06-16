@@ -1,9 +1,8 @@
 {
   "name": "access-management-app",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "@daml.js/create-daml-app": "file:daml.js/create-daml-app-0.1.0",
     "@daml.js/access-management": "file:daml.js/access-management-0.0.1",
     "@daml/ledger": "1.13.1",
     "@daml/react": "1.13.1",

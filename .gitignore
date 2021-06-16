@@ -2,4 +2,5 @@
 *log
 /ui/node_modules
 /ui/daml.js
-/ui/package.lock
+/ui/package-lock.json
+/ui/build/

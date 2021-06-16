@@ -4,7 +4,7 @@
 sdk-version: 1.13.1
 name: access-management
 source: daml
-init-script: Main:setup
+init-script: AccessManagement:setup
 parties:
   - Alice
   - Bob
@@ -15,3 +15,10 @@ dependencies:
   - daml-script
 sandbox-options:
   - --wall-clock-time
+  - --wall-clock-time
+  - --ledgerid=access-management-sandbox
+start-navigator: false
+codegen:
+  js:
+    output-directory: ui/daml.js
+    npm-scope: daml.js

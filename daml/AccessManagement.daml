@@ -69,9 +69,9 @@ template RequestApproval
 test : Script (ContractId RequestGranted)
 test = script do
   alice <-  allocateParty "Alice"
-  admin1 <- allocateParty "Ada"
-  admin2 <- allocateParty "Adelaide"
-  admin3 <- allocateParty "Adam"
+  admin1 <- allocateParty "admin1"
+  admin2 <- allocateParty "admin2"
+  admin3 <- allocateParty "admin3"
 
   let admins = fromList [admin1, admin2, admin3]
 
@@ -136,10 +136,10 @@ test = script do
       grantor = admin2
 
 setup = script do
-  alice <-  allocateParty "Alice"
-  admin1 <- allocateParty "Ada"
-  admin2 <- allocateParty "Adelaide"
-  admin3 <- allocateParty "Adam"
+  alice <-  allocatePartyWithHint "Alice" (PartyIdHint "Alice")
+  admin1 <-  allocatePartyWithHint "admin1" (PartyIdHint "admin1")
+  admin2 <-  allocatePartyWithHint "admin2" (PartyIdHint "admin2")
+  admin3 <-  allocatePartyWithHint "admin3" (PartyIdHint "admin3")
 
   let admins = fromList [admin1, admin2, admin3]
 

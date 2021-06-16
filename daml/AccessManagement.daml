@@ -134,3 +134,20 @@ test = script do
   admin2 `submit` do
     exerciseCmd pending' GrantRequest with
       grantor = admin2
+
+setup = script do
+  alice <-  allocateParty "Alice"
+  admin1 <- allocateParty "Ada"
+  admin2 <- allocateParty "Adelaide"
+  admin3 <- allocateParty "Adam"
+
+  let admins = fromList [admin1, admin2, admin3]
+
+  -- Create resource
+  admin1 `submit` do
+    createCmd Resource with
+      description = "pool car"
+      issuer = admin1
+      admins = admins
+      withRequestRight = singleton alice
+      approversNeeded = 2

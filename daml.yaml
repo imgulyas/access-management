@@ -7,7 +7,9 @@ source: daml
 init-script: AccessManagement:setup
 parties:
   - Alice
-  - Bob
+  - admin1
+  - admin2
+  - admin3
 version: 0.0.1
 dependencies:
   - daml-prim
@@ -16,7 +18,7 @@ dependencies:
 sandbox-options:
   - --wall-clock-time
   - --ledgerid=access-management-sandbox
-start-navigator: false
+start-navigator: true
 codegen:
   js:
     output-directory: ui/daml.js

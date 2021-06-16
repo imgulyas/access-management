@@ -1,1 +1,4 @@
 /.daml
+*log
+/ui/node_modules
+/ui/daml.js

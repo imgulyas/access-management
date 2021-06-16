@@ -15,7 +15,6 @@ dependencies:
   - daml-script
 sandbox-options:
   - --wall-clock-time
-  - --wall-clock-time
   - --ledgerid=access-management-sandbox
 start-navigator: false
 codegen:

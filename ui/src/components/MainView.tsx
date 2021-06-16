@@ -4,19 +4,21 @@
 import React, { useMemo } from 'react';
 import { Container, Grid, Header, Icon, Segment, Divider } from 'semantic-ui-react';
 import { Party } from '@daml/types';
-import { User } from '@daml.js/access-management';
+import { User, AccessManagement } from '@daml.js/access-management';
 import { useParty, useLedger, useStreamFetchByKeys, useStreamQueries } from '@daml/react';
 import UserList from './UserList';
 import ResourceList from './ResourceList';
 import PartyListEdit from './PartyListEdit';
 
-// USERS_BEGIN
+
 const MainView: React.FC = () => {
+  // USERS_BEGIN
   const username = useParty();
   const myUserResult = useStreamFetchByKeys(User.User, () => [username], [username]);
   const myUser = myUserResult.contracts[0]?.payload;
   const allUsers = useStreamQueries(User.User).contracts;
-// USERS_END
+  // USERS_END
+
 
   // Sorted list of users that are following the current user
   const followers = useMemo(() =>
@@ -39,6 +41,11 @@ const MainView: React.FC = () => {
     }
   }
   // FOLLOW_END
+
+  // RESOURCES_BEGIN
+  const allResources = useStreamQueries(AccessManagement.Resource).contracts;
+  const resourcesToShow = useMemo(() => allResources.map(r => r.payload), [allResources]);
+  // RESOURCES_END
 
   return (
     <Container>
@@ -78,6 +85,20 @@ const MainView: React.FC = () => {
                 onFollow={follow}
               />
               {/* USERLIST_END */}
+            </Segment>
+            <Segment>
+              <Header as='h2'>
+                <Icon name='globe' />
+                <Header.Content>
+                  Available Resources
+                  <Header.Subheader>You can request access to these resources</Header.Subheader>
+                </Header.Content>
+              </Header>
+              <Divider />
+              <ResourceList
+                resources={resourcesToShow}
+                onAccessRequest={()=>{}}
+              />
             </Segment>
           </Grid.Column>
         </Grid.Row>

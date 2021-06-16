@@ -24,6 +24,7 @@ const ResourceList: React.FC<Props> = ({resources, onAccessRequest}) => {
           <List.Content>
             <List.Content floated='right'>
               <Icon
+	        name='laptop'
                 link
                 className='test-select-add-user-icon'
                 onClick={() => onAccessRequest()} />

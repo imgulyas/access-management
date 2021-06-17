@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react'
-import { Icon, List } from 'semantic-ui-react'
+import { Button, List } from 'semantic-ui-react'
 import { AccessManagement } from '@daml.js/access-management'
 
 type Props = {
@@ -15,19 +15,25 @@ type Props = {
  * Every party in the list can be added as a friend.
  */
 const ResourceList: React.FC<Props> = ({resources, onCreateRequest}) => {
+
+  const	concat = (entries: [string, {}][]) : string => {
+	return entries.map(t => t[0]).reduce((a, b) => a+', '+b);
+  };
+
   return (
     <List divided relaxed>
       {/* {[...resources].sort((x, y) => x.username.localeCompare(y.username)).map(resource => */}
       {[...resources].map(resource =>
         <List.Item key={resource.description}>
-          <List.Icon name='user' />
           <List.Content>
             <List.Content floated='right'>
-              <Icon
+	      <span>Admins: {concat(resource.admins.map.entriesArray()) + '  '}</span>
+	      <Button onClick={() => onCreateRequest(resource)}>Request access</Button>
+              {/* <Icon
 	        name='universal access'
                 link
                 className='test-select-add-user-icon'
-                onClick={() => onCreateRequest(resource)} />
+                onClick={() => onCreateRequest(resource)} /> */}
             </List.Content>
             <List.Header className='test-select-user-in-network'>{resource.description}</List.Header>
           </List.Content>

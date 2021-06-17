@@ -7,14 +7,14 @@ import { AccessManagement } from '@daml.js/access-management'
 
 type Props = {
   resources: AccessManagement.Resource[];
-  onAccessRequest: () => void;
+  onCreateRequest: (resource: AccessManagement.Resource) => void;
 }
 
 /**
  * React component to display a list of `User`s.
  * Every party in the list can be added as a friend.
  */
-const ResourceList: React.FC<Props> = ({resources, onAccessRequest}) => {
+const ResourceList: React.FC<Props> = ({resources, onCreateRequest}) => {
   return (
     <List divided relaxed>
       {/* {[...resources].sort((x, y) => x.username.localeCompare(y.username)).map(resource => */}
@@ -24,10 +24,10 @@ const ResourceList: React.FC<Props> = ({resources, onAccessRequest}) => {
           <List.Content>
             <List.Content floated='right'>
               <Icon
-	        name='laptop'
+	        name='universal access'
                 link
                 className='test-select-add-user-icon'
-                onClick={() => onAccessRequest()} />
+                onClick={() => onCreateRequest(resource)} />
             </List.Content>
             <List.Header className='test-select-user-in-network'>{resource.description}</List.Header>
           </List.Content>

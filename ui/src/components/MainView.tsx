@@ -43,9 +43,18 @@ const MainView: React.FC = () => {
   // FOLLOW_END
 
   // RESOURCES_BEGIN
-  const allResources = useStreamQueries(AccessManagement.Resource).contracts;
-  const resourcesToShow = useMemo(() => allResources.map(r => r.payload), [allResources]);
-  // RESOURCES_END
+  const resourceQuery = useStreamQueries(AccessManagement.Resource).contracts;
+  const resources = useMemo(() => resourceQuery.map(r => r.payload), [resourceQuery]);
+
+  const createRequest = async (resource: AccessManagement.Resource): Promise<boolean> => {
+    try {
+      await ledger.create(AccessManagement.ResourceRequest, {resource: resource, applicant: username});
+      return true;
+    } catch (error) {
+      alert(`Unknown error:\n${error}`);
+      return false;
+    }
+  }
 
   return (
     <Container>
@@ -88,7 +97,7 @@ const MainView: React.FC = () => {
             </Segment>
             <Segment>
               <Header as='h2'>
-                <Icon name='globe' />
+                <Icon name='box' />
                 <Header.Content>
                   Available Resources
                   <Header.Subheader>You can request access to these resources</Header.Subheader>
@@ -96,8 +105,8 @@ const MainView: React.FC = () => {
               </Header>
               <Divider />
               <ResourceList
-                resources={resourcesToShow}
-                onAccessRequest={()=>{}}
+                resources={resources}
+                onCreateRequest={createRequest}
               />
             </Segment>
           </Grid.Column>

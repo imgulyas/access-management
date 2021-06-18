@@ -3,45 +3,16 @@
 
 import React, { useMemo } from 'react';
 import { Container, Grid, Header, Icon, Segment, Divider } from 'semantic-ui-react';
-import { Party } from '@daml/types';
+import { emptyMap } from '@daml/types';
 import { AccessManagement } from '@daml.js/access-management';
-import { useParty, useLedger, useStreamFetchByKeys, useStreamQueries } from '@daml/react';
+import { useParty, useLedger, useStreamQueries } from '@daml/react';
 import ResourceList from './ResourceList';
-import RequestList from './RequestList';
-import PartyListEdit from './PartyListEdit';
+import { Approval, RequestList } from './RequestList';
 
 
 const MainView: React.FC = () => {
-  // USERS_BEGIN
   const username = useParty();
-  //const myUserResult = useStreamFetchByKeys(User.User, () => [username], [username]);
-  //const myUser = myUserResult.contracts[0]?.payload;
-  //const allUsers = useStreamQueries(User.User).contracts;
-  // USERS_END
-
-
-  // // Sorted list of users that are following the current user
-  // const followers = useMemo(() =>
-  //   allUsers
-  //   .map(user => user.payload)
-  //   .filter(user => user.username !== username)
-  //   .sort((x, y) => x.username.localeCompare(y.username)),
-  //   [allUsers, username]);
-
-  // // FOLLOW_BEGIN
-
   const ledger = useLedger();
-
-  // const follow = async (userToFollow: Party): Promise<boolean> => {
-  //   try {
-  //     await ledger.exerciseByKey(User.User.Follow, username, {userToFollow});
-  //     return true;
-  //   } catch (error) {
-  //     alert(`Unknown error:\n${error}`);
-  //     return false;
-  //   }
-  // }
-  // FOLLOW_END
 
   // RESOURCES_BEGIN
   const resourceQuery = useStreamQueries(AccessManagement.Resource).contracts;
@@ -62,17 +33,31 @@ const MainView: React.FC = () => {
   const requestQuery = useStreamQueries(AccessManagement.ResourceRequest).contracts;
   const approvalQuery = useStreamQueries(AccessManagement.RequestApproval).contracts;
 
-  const requests: [AccessManagement.ResourceRequest, (AccessManagement.RequestApproval | undefined)][] = useMemo(() => requestQuery.map(r => [r.payload, undefined]), [requestQuery]);
-  //const approvals = useMemo(() => requestQuery.map(r => r.payload), [requestQuery]);
+  const requests: [AccessManagement.ResourceRequest, Approval | undefined][] =
+    useMemo(
+      () => requestQuery
+        .map(req => {
+          const payload = req.payload;
+          const matchingApp = approvalQuery
+            .find(app => app.payload.request.applicant === payload.applicant
+                         && app.payload.request.resource.description === payload.resource.description);
+          const app: Approval | undefined = matchingApp ? { id: matchingApp.contractId, approval: matchingApp.payload } : undefined;
+          return  [payload, app];}),
+      [requestQuery, approvalQuery]);
 
-  const approveRequest = async (request: AccessManagement.ResourceRequest): Promise<boolean> => {
+  const approveRequest = async (request: AccessManagement.ResourceRequest, pending: Approval | undefined): Promise<boolean> => {
     try {
-      //await ledger.exercise(AccessManagement.ResourceRequest.Approve, {resource: resource, applicant: username});
-      await Promise.resolve();
-      alert('approved!');
+      await pending
+        ? ledger.exerciseByKey(AccessManagement.RequestApproval.Approve, pending?.id, { approver: username }) 
+        : ledger.create(
+            AccessManagement.RequestApproval,
+            { approvedBy: { map: emptyMap<string, {}>().set(username, {}) },
+            request: request});
+
       return true;
+
     } catch (error) {
-      alert(`Unknown error:\n${error}`);
+      alert('ERROR');
       return false;
     }
   }

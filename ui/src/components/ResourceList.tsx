@@ -20,10 +20,8 @@ const ResourceList: React.FC<Props> = ({currentUser, resources, requests, onCrea
   const hasRequestRight = (resource: AccessManagement.Resource) =>
     resource.withRequestRight.find(user => user === currentUser);
 
-  const notRequestedYet = (resource: AccessManagement.Resource) =>
-    requests
-      .filter(req => req.applicant === currentUser && req.resource.description === resource.description)
-      .length === 0
+  const notRequestedYet = (resource: AccessManagement.Resource): boolean =>
+    !requests.find(req => req.applicant === currentUser && req.resource.description === resource.description)
 
   return (
     <List divided relaxed >

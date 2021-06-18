@@ -31,6 +31,7 @@ template ResourceRequest
   where
     signatory applicant
     observer  resource.admins
+    ensure member applicant (fromList resource.withRequestRight)
     key (applicant, resource.description): (Party, Text)
     maintainer key._1
 
@@ -92,8 +93,14 @@ test = script do
       withRequestRight = [alice]
       approversNeeded = 2
 
+  -- You need rights to start a request
+  Some car <- queryContractId admin3 resourceId
+  requestId <- admin3 `submitMustFail` do
+    createCmd ResourceRequest with
+      applicant = admin3
+      resource = car
+
   -- Request usage
-  Some car <- queryContractId alice resourceId
   requestId <- alice `submit` do
     createCmd ResourceRequest with
       applicant = alice

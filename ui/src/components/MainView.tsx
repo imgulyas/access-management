@@ -3,7 +3,6 @@
 
 import React, { useMemo } from 'react';
 import { Container, Grid, Header, Icon, Segment, Divider } from 'semantic-ui-react';
-import { emptyMap } from '@daml/types';
 import { AccessManagement } from '@daml.js/access-management';
 import { useParty, useLedger, useStreamQueries } from '@daml/react';
 import ResourceList from './ResourceList';
@@ -47,16 +46,21 @@ const MainView: React.FC = () => {
 
   const approveRequest = async (request: AccessManagement.ResourceRequest, pending: Approval | undefined): Promise<boolean> => {
     try {
-      await pending
-        ? ledger.exerciseByKey(AccessManagement.RequestApproval.Approve, pending?.id, { approver: username }) 
-        : ledger.create(
-            AccessManagement.RequestApproval,
-            { approvedBy: [username],  request: request });
+      if(pending) {
+        await ledger.exercise(
+          AccessManagement.RequestApproval.Approve,
+          pending?.id,
+          { approver: username }) ;
+      } else {
+        await ledger.create(
+          AccessManagement.RequestApproval,
+          { approvedBy: [username],  request: request });
+      }
 
       return true;
 
     } catch (error) {
-      alert('ERROR');
+      alert('error');
       return false;
     }
   }

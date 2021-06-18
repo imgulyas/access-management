@@ -27,6 +27,8 @@ template ResourceRequest
   where
     signatory applicant
     observer  resource.admins
+    key (applicant, resource.description): (Party, Text)
+    maintainer key._1
 
 template RequestGranted
   with

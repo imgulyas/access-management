@@ -89,6 +89,7 @@ const MainView: React.FC = () => {
               <ResourceList
                 currentUser={username}
                 resources={resources}
+                requests={requests.map(([r, x]) => r)}
                 onCreateRequest={createRequest}
               />
             </Segment>

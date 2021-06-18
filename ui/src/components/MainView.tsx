@@ -64,39 +64,8 @@ const MainView: React.FC = () => {
             <Header as='h1' size='huge' color='blue' textAlign='center' style={{padding: '1ex 0em 0ex 0em'}}>
                 {myUser ? `Welcome, ${myUser.username}!` : 'Loading...'}
             </Header>
-
             <Segment>
-              <Header as='h2'>
-                <Icon name='user' />
-                <Header.Content>
-                  {myUser?.username ?? 'Loading...'}
-                  <Header.Subheader>Users I'm following</Header.Subheader>
-                </Header.Content>
-              </Header>
-              <Divider />
-              <PartyListEdit
-                parties={myUser?.following ?? []}
-                onAddParty={follow}
-              />
-            </Segment>
-            <Segment>
-              <Header as='h2'>
-                <Icon name='globe' />
-                <Header.Content>
-                  The Network
-                  <Header.Subheader>My followers and users they are following</Header.Subheader>
-                </Header.Content>
-              </Header>
-              <Divider />
-              {/* USERLIST_BEGIN */}
-              <UserList
-                users={followers}
-                onFollow={follow}
-              />
-              {/* USERLIST_END */}
-            </Segment>
-            <Segment>
-              <Header as='h2'>
+              <Header as='h3'>
                 <Icon name='box' />
                 <Header.Content>
                   Available Resources

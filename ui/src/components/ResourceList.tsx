@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react'
-import { Button, List } from 'semantic-ui-react'
+import { Button, List, Segment, Container, Divider } from 'semantic-ui-react'
 import { AccessManagement } from '@daml.js/access-management'
 
 type Props = {
@@ -16,27 +16,23 @@ type Props = {
  */
 const ResourceList: React.FC<Props> = ({resources, onCreateRequest}) => {
 
-  const	concat = (entries: [string, {}][]) : string => {
-	return entries.map(t => t[0]).reduce((a, b) => a+', '+b);
-  };
-
   return (
-    <List divided relaxed>
-      {/* {[...resources].sort((x, y) => x.username.localeCompare(y.username)).map(resource => */}
+    <List divided relaxed >
       {[...resources].map(resource =>
         <List.Item key={resource.description}>
-          <List.Content>
-            <List.Content floated='right'>
-	      <span>Admins: {concat(resource.admins.map.entriesArray()) + '  '}</span>
-	      <Button onClick={() => onCreateRequest(resource)}>Request access</Button>
-              {/* <Icon
-	        name='universal access'
-                link
-                className='test-select-add-user-icon'
-                onClick={() => onCreateRequest(resource)} /> */}
-            </List.Content>
-            <List.Header className='test-select-user-in-network'>{resource.description}</List.Header>
-          </List.Content>
+          <Segment clearing>
+            <List.Header as='h3'>{resource.description}</List.Header>
+            <Divider></Divider>
+            <List.Description>
+              Administrators: <br></br>
+              <List horizontal>
+                {resource.admins.map.entriesArray().map(t => t[0]).map(admin =>
+                  <List.Item key={admin}><strong>{admin}</strong></List.Item>  
+                )}
+              </List>
+            </List.Description>
+            <Button floated='right' onClick={() => onCreateRequest(resource)}>Request access</Button>
+          </Segment>
         </List.Item>
       )}
     </List>

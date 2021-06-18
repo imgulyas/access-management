@@ -33,6 +33,8 @@ const MainView: React.FC = () => {
   const approvalQuery = useStreamQueries(AccessManagement.RequestApproval).contracts;
   const grantQuery = useStreamQueries(AccessManagement.RequestGranted).contracts;
 
+  const grants = useMemo(()=>grantQuery.map(g => g.payload), [grantQuery]);
+
   const requests: [AccessManagement.ResourceRequest, Approval | undefined][] =
     useMemo(
       () => requestQuery
@@ -107,7 +109,7 @@ const MainView: React.FC = () => {
                 currentUser={username}
                 resources={resources}
                 requests={requests.map(([r, x]) => r)}
-                grants={grantQuery.map(g => g.payload)}
+                grants={grants}
                 onCreateRequest={createRequest}
               />
             </Segment>
@@ -126,6 +128,7 @@ const MainView: React.FC = () => {
               <RequestList
                 currentUser={username}
                 requests={requests}
+                grants={grants}
                 onApprove={approveRequest}
                 onGrantRequest={grantRequest}
               />

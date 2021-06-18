@@ -45,10 +45,10 @@ const ResourceList: React.FC<Props> = ({currentUser, resources, requests, grants
                 notRequestedYet(resource) &&
                 <Button floated='right' onClick={() => onCreateRequest(resource)}>Request access</Button>}
             </List.Content>
-            <List verticalAlign='top'>
+            <List>
               { Array.from(new Set([...grants].filter(g => g.request.resource.description === resource.description).map(g => g.request.applicant)))
                   .map( partyWithAccess =>
-                    <List.Item><Icon padding name='thumbs up outline' />{'  '+partyWithAccess}</List.Item>
+                    <List.Item key={partyWithAccess}><Icon name='thumbs up outline' />{'  '+partyWithAccess}</List.Item>
                   )
               }
             </List>

@@ -15,6 +15,7 @@ export interface Approval {
 type Props = {
   currentUser: string,
   requests: [AccessManagement.ResourceRequest, Approval | undefined][];
+  grants: AccessManagement.RequestGranted[];
   onApprove: (request: AccessManagement.ResourceRequest, approval: Approval | undefined) => void;
   onGrantRequest: (approval: Approval | undefined) => void;
 }
@@ -23,13 +24,17 @@ type Props = {
  * React component to display a list of `ResourceRequest`s.
  * Admins can approve requests.
  */
-export const RequestList: React.FC<Props> = ({currentUser, requests, onApprove, onGrantRequest}) => {
+export const RequestList: React.FC<Props> = ({currentUser, requests, grants, onApprove, onGrantRequest}) => {
   const isAdmin = (request: AccessManagement.ResourceRequest) =>
     request.resource.admins.find(a => a === currentUser);
+  const wasGranted = (req: AccessManagement.ResourceRequest) =>
+    grants.find(g => g.request.applicant === req.applicant && g.request.resource.description === req.resource.description);
 
   return (
     <List divided relaxed >
-      {[...requests].map(([request, pending]) => {
+      {[...requests]
+        .filter(([r, p]) => !wasGranted(r))
+        .map(([request, pending]) => {
         const numOfApprovers: number = pending ? pending.approval.approvedBy.length : 0;
         const neededApprovers: number = +request.resource.approversNeeded;
         const didApprove = pending ? pending.approval.approvedBy.filter(a => a === currentUser).length > 0 : false;

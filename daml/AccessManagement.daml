@@ -1,22 +1,26 @@
 module AccessManagement where
 
 import DA.Set
+import DA.List
 import Daml.Script
 
-subsetOf : Ord a => Set a -> Set a -> Bool
-set1 `subsetOf` set2 = set1 `union` set2 == set2
+subsetOf : Ord a => [a] -> [a] -> Bool
+l1 `subsetOf` l2 = set1 `union` set2 == set2
+  where set1 = fromList l1
+        set2 = fromList l2
 
 template Resource
   with
     description      : Text
     issuer           : Party
-    admins           : Set Party
-    withRequestRight : Set Party
+    admins           : [Party]
+    withRequestRight : [Party]
     approversNeeded  : Int
   where
     ensure description /= "" &&
+           unique admins &&
            approversNeeded > 0 &&
-           approversNeeded <= size admins
+           approversNeeded <= length admins
     signatory issuer
     observer admins, withRequestRight
 
@@ -42,27 +46,29 @@ template RequestGranted
 template RequestApproval
   with
     request    : ResourceRequest
-    approvedBy : Set Party
+    approvedBy : [Party]
   where
     signatory approvedBy
     observer  request.applicant, request.resource.admins
-    ensure approvedBy `subsetOf` request.resource.admins
+    ensure approvedBy `subsetOf` request.resource.admins &&
+           unique approvedBy
 
     choice Approve: ContractId RequestApproval
       with approver: Party
       controller approver
       do
-        let approversPending = difference request.resource.admins approvedBy
-        assert $ member approver approversPending
+        let approversPending = request.resource.admins \\ approvedBy
+        assert $ member approver (fromList approversPending)
         create this with
-          approvedBy = insert approver approvedBy
+          approvedBy = approver :: approvedBy
 
     nonconsuming choice GrantRequest: ContractId RequestGranted
       with grantor : Party
       controller grantor
       do
-        assert $ member grantor approvedBy
-        assert $ size approvedBy >= request.resource.approversNeeded
+        let approvedBySet = fromList approvedBy
+        assert $ member grantor approvedBySet
+        assert $ size approvedBySet >= request.resource.approversNeeded
         create RequestGranted with
           request = request
           approval = this
@@ -75,7 +81,7 @@ test = script do
   admin2 <- allocateParty "admin2"
   admin3 <- allocateParty "admin3"
 
-  let admins = fromList [admin1, admin2, admin3]
+  let admins = [admin1, admin2, admin3]
 
   -- Create resource
   resourceId <- admin1 `submit` do
@@ -83,7 +89,7 @@ test = script do
       description = "pool car"
       issuer = admin1
       admins = admins
-      withRequestRight = singleton alice
+      withRequestRight = [alice]
       approversNeeded = 2
 
   -- Request usage
@@ -98,19 +104,19 @@ test = script do
   alice `submitMustFail` do
     createCmd RequestApproval with
       request = request
-      approvedBy = fromList [alice]
+      approvedBy = [alice]
 
   -- An admin can't give an other admin's approval
   admin1 `submitMustFail` do
     createCmd RequestApproval with
       request = request
-      approvedBy = fromList [admin1, admin3]
+      approvedBy = [admin1, admin3]
 
   -- An admin can start approval process
   pending <- admin1 `submit` do
     createCmd RequestApproval with
       request = request
-      approvedBy = fromList [admin1]
+      approvedBy = [admin1]
 
   -- An admin can only approve a pending request once
   admin1 `submitMustFail` do
@@ -143,7 +149,7 @@ setup = script do
   admin2 <-  allocatePartyWithHint "admin2" (PartyIdHint "admin2")
   admin3 <-  allocatePartyWithHint "admin3" (PartyIdHint "admin3")
 
-  let admins = fromList [admin1, admin2, admin3]
+  let admins = [admin1, admin2, admin3]
 
   -- Create resource
   admin1 `submit` do
@@ -151,5 +157,5 @@ setup = script do
       description = "pool car"
       issuer = admin1
       admins = admins
-      withRequestRight = singleton alice
+      withRequestRight = [alice, admin1]
       approversNeeded = 2

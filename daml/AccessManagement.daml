@@ -45,7 +45,7 @@ template RequestApproval
     approvedBy : Set Party
   where
     signatory approvedBy
-    observer  request.resource.admins
+    observer  request.applicant, request.resource.admins
     ensure approvedBy `subsetOf` request.resource.admins
 
     choice Approve: ContractId RequestApproval

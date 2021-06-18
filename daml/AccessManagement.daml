@@ -161,8 +161,16 @@ setup = script do
   -- Create resource
   admin1 `submit` do
     createCmd Resource with
-      description = "pool car"
+      description = "pingpong table"
       issuer = admin1
       admins = admins
       withRequestRight = [alice, admin1]
       approversNeeded = 2
+
+  admin1 `submit` do
+    createCmd Resource with
+      description = "secret lounge of admins"
+      issuer = admin1
+      admins = admins
+      withRequestRight = admins
+      approversNeeded = 3

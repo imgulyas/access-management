@@ -31,6 +31,7 @@ const MainView: React.FC = () => {
   // REQUESTS_BEGIN
   const requestQuery = useStreamQueries(AccessManagement.ResourceRequest).contracts;
   const approvalQuery = useStreamQueries(AccessManagement.RequestApproval).contracts;
+  const grantQuery = useStreamQueries(AccessManagement.RequestGranted).contracts;
 
   const requests: [AccessManagement.ResourceRequest, Approval | undefined][] =
     useMemo(
@@ -106,6 +107,7 @@ const MainView: React.FC = () => {
                 currentUser={username}
                 resources={resources}
                 requests={requests.map(([r, x]) => r)}
+                grants={grantQuery.map(g => g.payload)}
                 onCreateRequest={createRequest}
               />
             </Segment>

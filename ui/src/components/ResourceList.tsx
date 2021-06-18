@@ -26,7 +26,7 @@ const ResourceList: React.FC<Props> = ({resources, onCreateRequest}) => {
             <List.Description>
               Administrators:   <br></br>
               <List horizontal>
-                {resource.admins.map.entriesArray().map(t => t[0]).map(admin =>
+                {resource.admins.map(admin =>
                   <List.Item key={admin}><strong>{admin}</strong></List.Item>  
                 )}
               </List>

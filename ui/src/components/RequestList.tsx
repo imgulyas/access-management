@@ -24,12 +24,12 @@ type Props = {
  */
 export const RequestList: React.FC<Props> = ({currentUser, requests, onApprove}) => {
   const isAdmin = (request: AccessManagement.ResourceRequest) =>
-    request.resource.admins.map.has(currentUser);
+    request.resource.admins.find(a => a === currentUser);
 
   return (
     <List divided relaxed >
       {[...requests].map(([request, pending]) => {
-        const numOfApprovers: number = pending ? pending.approval.approvedBy.map.entriesArray().length : 0;
+        const numOfApprovers: number = pending ? pending.approval.approvedBy.length : 0;
         return  <List.Item key={request.resource.description+request.applicant+numOfApprovers}>
                   <Segment clearing>
                     <List.Header as='h3'>Resource: {request.resource.description}</List.Header>

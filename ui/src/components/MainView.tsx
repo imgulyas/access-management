@@ -51,8 +51,7 @@ const MainView: React.FC = () => {
         ? ledger.exerciseByKey(AccessManagement.RequestApproval.Approve, pending?.id, { approver: username }) 
         : ledger.create(
             AccessManagement.RequestApproval,
-            { approvedBy: { map: emptyMap<string, {}>().set(username, {}) },
-            request: request});
+            { approvedBy: [username],  request: request });
 
       return true;
 

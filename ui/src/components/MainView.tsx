@@ -60,8 +60,24 @@ const MainView: React.FC = () => {
       return true;
 
     } catch (error) {
-      alert('error');
-      return false;
+        alert('error');
+        return false;
+    }
+  }
+
+  const grantRequest = async (approval: Approval | undefined): Promise<boolean> => {
+    try {
+      if(approval) {
+        await ledger.exercise(
+          AccessManagement.RequestApproval.GrantRequest,
+          approval?.id,
+          { grantor: username });
+      }
+      return true;
+
+    } catch (error) {
+        alert('error');
+        return false;
     }
   }
   //REQUESTS_END
@@ -109,6 +125,7 @@ const MainView: React.FC = () => {
                 currentUser={username}
                 requests={requests}
                 onApprove={approveRequest}
+                onGrantRequest={grantRequest}
               />
             </Segment>
           </Grid.Column>

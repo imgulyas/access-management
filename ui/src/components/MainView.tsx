@@ -83,6 +83,7 @@ const MainView: React.FC = () => {
               </Header>
               <Divider />
               <ResourceList
+                currentUser={username}
                 resources={resources}
                 onCreateRequest={createRequest}
               />

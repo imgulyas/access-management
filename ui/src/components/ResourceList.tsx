@@ -6,6 +6,7 @@ import { Button, List, Segment, Divider } from 'semantic-ui-react'
 import { AccessManagement } from '@daml.js/access-management'
 
 type Props = {
+  currentUser: string,
   resources: AccessManagement.Resource[];
   onCreateRequest: (resource: AccessManagement.Resource) => void;
 }
@@ -14,7 +15,9 @@ type Props = {
  * React component to display a list of available `Resource`s.
  * One can request access to every resource in the list.
  */
-const ResourceList: React.FC<Props> = ({resources, onCreateRequest}) => {
+const ResourceList: React.FC<Props> = ({currentUser, resources, onCreateRequest}) => {
+  const hasRequestRight = (resource: AccessManagement.Resource) =>
+    resource.withRequestRight.find(user => user === currentUser);
 
   return (
     <List divided relaxed >
@@ -32,7 +35,7 @@ const ResourceList: React.FC<Props> = ({resources, onCreateRequest}) => {
               </List>
               <br></br>Approvals needed:  <strong>{resource.approversNeeded}</strong>
             </List.Description>
-            <Button floated='right' onClick={() => onCreateRequest(resource)}>Request access</Button>
+            { hasRequestRight(resource) && <Button floated='right' onClick={() => onCreateRequest(resource)}>Request access</Button>}
           </Segment>
         </List.Item>
       )}

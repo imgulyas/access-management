@@ -101,7 +101,7 @@ const MainView: React.FC = () => {
                 <Icon name='box' />
                 <Header.Content>
                   Available Resources
-                  <Header.Subheader>You can request access to these resources</Header.Subheader>
+                  <Header.Subheader>Parties with request rights can request access to these resources</Header.Subheader>
                 </Header.Content>
               </Header>
               <Divider />

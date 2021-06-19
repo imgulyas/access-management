@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react'
-import { Button, Icon, List, Segment, Divider } from 'semantic-ui-react'
+import { Button, Container, Icon, List, Segment, Divider } from 'semantic-ui-react'
 import { AccessManagement } from '@daml.js/access-management'
 
 type Props = {
@@ -30,7 +30,13 @@ const ResourceList: React.FC<Props> = ({currentUser, resources, requests, grants
         <List.Item key={resource.description}>
           <Segment clearing>
             <List.Content>
-              <List.Header as='h3'>{resource.description}</List.Header>
+              <Container>
+                <Container floated='left'><List.Header  as='h3'>{resource.description}</List.Header></Container>
+                { hasRequestRight(resource) &&
+                  notRequestedYet(resource) &&
+                  <Button floated='right' onClick={() => onCreateRequest(resource)}>Request access</Button>
+                }
+              </Container>
               <Divider></Divider>
               <List.Description>
                 Administrators:   <br></br>
@@ -41,9 +47,6 @@ const ResourceList: React.FC<Props> = ({currentUser, resources, requests, grants
                 </List>
                 <br></br>Approvals needed:  <strong>{resource.approversNeeded}</strong>
               </List.Description>
-              { hasRequestRight(resource) &&
-                notRequestedYet(resource) &&
-                <Button floated='right' onClick={() => onCreateRequest(resource)}>Request access</Button>}
             </List.Content>
             <List>
               { Array.from(new Set([...grants].filter(g => g.request.resource.description === resource.description).map(g => g.request.applicant)))

@@ -37,18 +37,19 @@ export const RequestList: React.FC<Props> = ({currentUser, requests, grants, onA
         .map(([request, pending]) => {
         const numOfApprovers: number = pending ? pending.approval.approvedBy.length : 0;
         const neededApprovers: number = +request.resource.approversNeeded;
+        const enoughApprovers: boolean = numOfApprovers >= neededApprovers;
         const didApprove = pending ? pending.approval.approvedBy.filter(a => a === currentUser).length > 0 : false;
         return  <List.Item key={request.resource.description+request.applicant+numOfApprovers}>
                   <Segment clearing>
                     <List.Header as='h3'>Resource: {request.resource.description}</List.Header>
                     <List.Header as='h3'>Request by: {request.applicant}</List.Header>
                     <Divider></Divider>
-                    <Progress value={numOfApprovers} total={neededApprovers} progress='ratio' />
+                    <Progress value={numOfApprovers} total={neededApprovers} success={enoughApprovers} progress='ratio' />
                     { isAdmin(request) &&
                       !didApprove &&
                       <Button floated='right' onClick={() => onApprove(request, pending)}>Approve request</Button> }
                     { didApprove &&
-                      numOfApprovers >= neededApprovers &&
+                      enoughApprovers &&
                       <Button floated='right' onClick={() => onGrantRequest(pending)}>Grant request</Button>}
                   </Segment>
                 </List.Item> })}

@@ -1,7 +1,3 @@
-
-// Copyright (c) 2021 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
-// SPDX-License-Identifier: Apache-2.0
-
 import React from 'react'
 import { Button, List, Segment, Divider, Progress} from 'semantic-ui-react'
 import { AccessManagement } from '@daml.js/access-management'
